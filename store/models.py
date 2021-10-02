@@ -1,5 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models.fields import CharField, DateTimeField, TextField
+from django.db.models.fields.related import ForeignKey
 
 
 class Promotion(models.Model):
@@ -104,3 +106,11 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveSmallIntegerField()
+
+
+class Review(models.Model):
+    product = ForeignKey(Product, on_delete=models.CASCADE,
+                         related_name='reviews')
+    name = CharField(max_length=255)
+    description = TextField()
+    date = DateTimeField(auto_now_add=True)
