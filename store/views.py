@@ -12,7 +12,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .pagination import DefaultPagination
 from .filters import ProductFilter
 from .models import Cart, CartItem, OrderItem, Product, Collection, Review
-from .serializer import AddCartItemSerializer, CartItemSerializer, CartSerializer, CollectionSerializer, ProductSerializer, ReviewSerializer
+from .serializer import AddCartItemSerializer, CartItemSerializer, CartSerializer, CollectionSerializer, ProductSerializer, ReviewSerializer, UpdateCartItemSerializer
 
 
 class ProductViewSet(ModelViewSet):
@@ -60,6 +60,8 @@ class CartViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Des
 
 
 class CartItemViewSet(ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
+
     def get_queryset(self):
         return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).\
             select_related('product')
@@ -67,8 +69,9 @@ class CartItemViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return AddCartItemSerializer
+        if self.request.method == 'PATCH':
+            return UpdateCartItemSerializer
         return CartItemSerializer
 
     def get_serializer_context(self):
         return {"cart_id": self.kwargs['cart_pk']}
-
