@@ -4,15 +4,15 @@ from django.db.models.base import Model
 
 # Create your views here.
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import mixins, status
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .pagination import DefaultPagination
 from .filters import ProductFilter
-from .models import OrderItem, Product, Collection, Review
-from .serializer import CollectionSerializer, ProductSerializer, ReviewSerializer
+from .models import Cart, OrderItem, Product, Collection, Review
+from .serializer import CartSerializer, CollectionSerializer, ProductSerializer, ReviewSerializer
 
 
 class ProductViewSet(ModelViewSet):
@@ -52,3 +52,7 @@ class ReviewViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'product_id': self.kwargs['product_pk']}
+
+class CartViewSet(mixins.CreateModelMixin,GenericViewSet):
+    queryset=Cart.objects.all()
+    serializer_class = CartSerializer
