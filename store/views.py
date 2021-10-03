@@ -11,8 +11,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .pagination import DefaultPagination
 from .filters import ProductFilter
-from .models import Cart, OrderItem, Product, Collection, Review
-from .serializer import CartSerializer, CollectionSerializer, ProductSerializer, ReviewSerializer
+from .models import Cart, CartItem, OrderItem, Product, Collection, Review
+from .serializer import CartItemSerializer, CartSerializer, CollectionSerializer, ProductSerializer, ReviewSerializer
 
 
 class ProductViewSet(ModelViewSet):
@@ -54,6 +54,16 @@ class ReviewViewSet(ModelViewSet):
         return {'product_id': self.kwargs['product_pk']}
 
 
-class CartViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+class CartViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, GenericViewSet):
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer
+
+
+class CartItemViewSet(ModelViewSet):
+    def get_queryset(self):
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).\
+            select_related('product')
+    serializer_class = CartItemSerializer
+
+    def get_serializer_context(self):
+        return {"cart_id": self.kwargs['cart_pk']}
